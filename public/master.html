@@ -1,0 +1,276 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Pearl River (2013/15)</title>
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="js/jquery.js"></script>
+		<script src="js/pearls.js"></script>
+		<script src="js/nexusUI.js"></script>
+		<script src="js/Tone.js"></script>
+	</head>
+	<body style="margin:0;padding:0;min-width:740px" onmousemove="movesilentpearl(event)"  ontouchstart="stopDrag(event)" ontouchmove="movesilentpearl(event)">
+
+
+	<div style="background-color:#0af;color:white;font-family:courier;font-size:15pt;text-align:center;padding:4px;" id="broken">connecting...</div>
+
+	<script>
+
+		var chord1;
+
+		var tonesiri = new Tone.Player("audio/sirivoice.mp3",function() {
+			tonesiri.toMaster();
+			console.log("loaded!")
+		});
+
+		function stopDrag(e) {
+			e.preventDefault();
+		}
+
+		nx.onload = function() {
+
+			group = 10;
+
+			nx.colorize("#0AF");
+			chord1 = document.getElementById("chord1")
+
+			source = false;
+
+			pianoon.on('*',function(data){
+				if (data.press) {
+					socket.emit('s_loadpage', 'pianonotes', 0);
+				}
+			})
+
+			sirion1.on('*',function(data){
+				if (data.press) {
+					socket.emit('s_loadpage', 'siri', 1);
+				}
+			})
+
+			sirion2.on('*',function(data){
+				if (data.press) {
+					socket.emit('s_loadpage', 'siri', 2);
+				}
+			})
+
+			sirion3.on('*',function(data){
+				if (data.press) {
+					socket.emit('s_loadpage', 'siri', 3);
+					socket.emit('s_loadpage', 'siri', 4);
+				}
+			})
+
+			sirivol.on('*',function(data){
+				tonesiri.setVolume(nx.scale(data.value,0,1,-96,1),0.1);
+			})
+
+			playsiri.on('*',function(data){
+				if (data.value==1) {
+					tonesiri.start()
+				} else {
+					tonesiri.stop()
+				}
+			})
+
+			blipson1.on('*',function(data){
+				if (data.press) {
+					socket.emit('s_loadpage', 'fm', 1);
+					socket.emit('s_loadpage', 'fm', 2);
+				}
+			})
+
+			blipson2.on('*',function(data){
+				if (data.press) {
+					socket.emit('s_loadpage', 'fm', 3);
+					socket.emit('s_loadpage', 'fm', 4);
+				}
+			})
+
+			pearlon1.on('*',function(data){
+				if (data.press) {
+					socket.emit('s_loadpage', 'river', 1);
+					socket.emit('s_loadpage', 'river', 2);
+				}
+			})
+
+			pearlon2.on('*',function(data){
+				if (data.press) {
+					socket.emit('s_loadpage', 'river', 3);
+					socket.emit('s_loadpage', 'river', 4);
+				}
+			})
+
+			pearlme.on('*',function(data){
+				if (data.press) {
+					socket.emit('s_loadpage', 'river', 10);
+				}
+			})
+
+		}
+
+
+		// LISTEN for users
+		socket.on('updateusers', function (users) {
+			console.log(users)
+			var htmlstr = "";
+			for (var key in users) {
+				htmlstr += '<div style="float:left;width:10px;height:10px;background-color:#ccc;margin:2px;"></div>'
+			}
+			$("#users").html(htmlstr);
+			
+		});
+
+
+	</script>
+
+
+	<style>
+
+		body {
+			font-family:gill sans;
+			color:#bbb;
+			background-color:#f7f7f7;
+
+		}
+
+		.button {
+			color:#999;
+			display:block;
+			border:solid 1px #aaa;
+			padding:10px;
+			text-decoration:none;
+			float:right;
+			margin:5px;
+			background-color:#f7f7f7;
+		}
+
+		.button:hover {
+			background-color:#eee;
+			border:solid 1px black;
+		}
+
+
+		.frame {
+			display:none;
+		}
+
+		.overlay {
+			width:100%;
+			height:100%;
+			background-color:#0af;
+			color:white;
+			position:absolute;
+			top:0px;
+			left:0px;
+			display:none;
+			font-size:60pt;
+			text-align:center;
+			padding:50px;
+			font-family:gill sans;
+		}
+
+	</style>
+
+
+		
+
+		
+		<div style="text-align:left;color:#777;font-size:12pt;font-family:gill sans;padding:5px;background-color:#eee">
+			pearl river 
+			<span style="color:#bbb;font-size:12pt;margin-left:20px">WAC15</span>
+			<span style="float:right;color:#bbb;">ben taylor (2013/2015)</span>
+			<audio src="audio/chord1.mp3" id="chord1"></audio>
+		</div>
+
+		<style>
+
+			.rack {
+				border:solid 1px #ddd;
+				background-color:#fff;
+				width:50%;
+				text-align:center;
+				padding:20px;
+				margin:10px auto;
+			}
+
+		</style>
+
+		<div id="master" style="display:block;padding:10px;text-align:center">
+
+		
+			<div class="rack" onclick="socket.emit('s_loadpage', 'cover', 0);">
+				<div id="users" style="overflow:auto"></div>
+			</div>
+
+			<div class="rack">
+				distributed piano<br>
+				<canvas nx="button" id="pianoon"></canvas>
+			</div>
+
+			<div class="rack">
+				a wash<br>
+				<canvas nx="button" id="blipson1"></canvas>
+				<canvas nx="button" id="blipson2"></canvas>
+			</div>
+
+			<div class="rack">
+				voices<br>
+				<canvas nx="button" id="sirion1"></canvas>
+				<canvas nx="button" id="sirion2"></canvas>
+				<canvas nx="button" id="sirion3"></canvas>
+				<canvas nx="dial" id="sirivol"></canvas>
+				<canvas nx="toggle" id="playsiri"></canvas>
+			</div>
+
+			<div class="rack">
+				pearl river<br>
+				<canvas nx="button" id="pearlon1"></canvas>
+				<canvas nx="button" id="pearlon2"></canvas>
+				<canvas nx="button" id="pearlme"></canvas>
+			</div>
+
+		</div>
+
+
+
+
+		<div class="frame" id="river">
+
+			<canvas id="harp" style="width:900px;height:500px;border:solid 0px #eee;margin:0px auto 0px;display:block;width:100%;cursor:none;" onmousemove="playpearl(event)" onmouseout="endpearl()" ontouchmove="playpearl(event)"></canvas>
+
+
+			<div style="background-color:#eee;width:100%;height:200px">
+
+				<div style="font-size:11pt;text-align:center;float:right;width:300px">
+					<a href="javascript:voiceReg=(132*4)" class="button">soprano</a>
+					<a href="javascript:voiceReg=(132*2)" class="button">alto</a>
+					<a href="javascript:voiceReg=(132*1)" class="button" style="border-color:#7ae">tenor</a>
+					<a href="javascript:voiceReg=(132*0.5)" class="button">bass</a>
+					<div style="clear:both;color:#aaa;text-align:right;margin:10px;"><br>
+					• trace lines<br>
+					• move slowly<br>
+					• follow other mice<br>
+					• organize/improvise by chat<br>
+					• each player produces sound<br>
+					• always project website & chat in performance
+					</div>
+				</div>
+
+				<div style="overflow:hidden;height:140px;width:400px;margin:0 auto;border:solid 1px #eee;float:left">
+					<input id="chatinput" onkeypress="submitChat(event)" value="chat here" type="text" style="display:block;border:none;border-bottom:solid 1px #aaa;width:388px;outline:1px #aaa;font-size:9pt;padding:5px;background-color:transparent;color:#444"></input>
+					<div id="chatmessages" style="font-size:10pt;height:50px;text-align:left;padding:5px;"></div>
+				</div>
+
+			</div>
+			
+			<div style="margin:0px auto;width:900px;text-align:center;color:#aaa;display:none">
+				y-axis = valume (low to high) • x-axis = pitch (low on left, high on right)<br>
+				play carefully • enter from the bottom, stay near one note, exit on the bottom<br>
+			</div>
+
+		</div>
+
+		
+				
+	</body>
+</html>
